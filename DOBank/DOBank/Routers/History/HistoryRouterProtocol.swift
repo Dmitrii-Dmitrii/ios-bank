@@ -1,1 +1,3 @@
-protocol HistoryRouterProtocol: AnyObject {}
+protocol HistoryRouterProtocol: AnyObject {
+    func navigateToTransactionDetails(transaction: TransactionModel)
+}

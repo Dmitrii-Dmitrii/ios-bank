@@ -1,4 +1,4 @@
 protocol MainInteractorProtocol: AnyObject {
-    func getAvailableFeatures() -> [FeatureModel]
+    func getAvailableFeatures(for account: AccountModel) -> [FeatureModel]
     func getUserAccounts(user: UserModel) -> [AccountModel]
 }

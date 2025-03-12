@@ -31,7 +31,7 @@
 
 ### `Main`
 
-- Загружает список доступных функций (баланс, переводы, история).
+- Загружает список доступных функций и список доступных счетов.
 - При выборе функции → переход на соответствующий экран.
 
 ### `Balance`
@@ -56,7 +56,7 @@
 ### Протоколы для экрана авторизации (Auth)
 
 **AuthViewProtocol**
-- `showError(message: String)`: Отображает ошибку авторизации на экране (например, неправильный логин или пароль).
+- `showError(message: String)`: Отображает ошибку авторизации на экране.
 
 **AuthPresenterProtocol**
 - `login(username: String, password: String)`: Принимает логин и пароль от пользователя и передает их в `Interactor` для выполнения аутентификации. Если аутентификация прошла успешно, передает данные пользователя в `Router` для перехода на главный экран. Если ошибка, сообщает View для отображения ошибки.
@@ -70,24 +70,27 @@
 ### Протоколы для экрана главного меню (Main)
 
 **MainViewProtocol**
-- `displayFeatures(_ features: [FeatureModel])`: Отображает доступные функции на главном экране (например, баланс, перевод, история) в виде списка. Метод принимает массив объектов `FeatureModel`.
+- `displayFeatures(_ features: [FeatureModel])`: Отображает доступные функции на главном экране в виде списка. Метод принимает массив объектов `FeatureModel`.
 - `displayUserAccounts(_ accounts: [AccountModel])`: Отображает список аккаунтов пользователя, полученных из `Presenter`, включая информацию о каждом аккаунте.
 
 **MainPresenterProtocol**
-- `loadFeatures()`: Загружает доступные функции для пользователя. Обычно вызывает метод `Interactor` для получения данных о возможных функциях (например, баланс, перевод и т. д.) и передает эти данные в `View` для отображения.
-- `didSelectFeature(_ feature: FeatureType)`: Обрабатывает выбор пользователем функции (например, выбор «Баланс» или «История»). Вызывает соответствующий метод в `Router` для навигации на соответствующий экран.
+- `loadFeatures()`: Загружает доступные функции для пользователя. Обычно вызывает метод `Interactor` для получения данных о возможных функциях и передает эти данные в `View` для отображения.
+- `didSelectFeature(_ feature: FeatureType)`: Обрабатывает выбор пользователем функции. Вызывает соответствующий метод в `Router` для навигации на соответствующий экран.
+- `func loadUserAccounts(user: UserModel)`: Загружает доступные счета для пользователя. Вызывает метод `Interactor` для получения счетов и передает их в `View` для отображения.
+- `func didSelectAccount(_ account: AccountModel)`: Обрабатывает выбор пользователем счета и сохраняет его.
 
 **MainInteractorProtocol**
-- `getAvailableFeatures() -> [FeatureModel]`: Возвращает список доступных функций для пользователя (например, баланс, перевод и история). Могут быть определены в настройках или на основе прав пользователя.
+- `getAvailableFeatures(for account: AccountModel) -> [FeatureModel]`: Возвращает список доступных функций для счета пользователя.
 - `getUserAccounts(user: UserModel) -> [AccountModel]`: Получает список аккаунтов пользователя и возвращает их в виде массива `AccountModel`.
 
 **MainRouterProtocol**
-- `navigateToFeature(_ feature: FeatureType, account: AccountModel)`: Осуществляет переход к экрану, соответствующему выбранной функции (например, экран баланса, переводов или истории транзакций). Также передает данные о выбранном аккаунте, чтобы загрузить его детали на следующем экране.
+- `navigateToFeature(_ feature: FeatureType, account: AccountModel)`: Осуществляет переход к экрану, соответствующему выбранной функции. Также передает данные о выбранном аккаунте, чтобы загрузить его детали на следующем экране.
 
 ### Протоколы для экрана баланса (Balance)
 
 **BalanceViewProtocol**
 - `displayBalance(_ balance: BalanceModel)`: Отображает баланс выбранного аккаунта. Метод принимает объект `BalanceModel`, содержащий информацию о текущем балансе и валюте.
+- `func showError(_ message: String)`: Отображает ошибку получения баланса на экране.
 
 **BalancePresenterProtocol**
 - `loadBalance(forAccount account: AccountModel)`: Запрашивает информацию о балансе для указанного аккаунта. Передает запрос в `Interactor` для получения данных и обновляет `View`, если данные получены.
@@ -96,7 +99,8 @@
 - `fetchBalance(forAccount account: AccountModel, completion: @escaping (Result<BalanceModel, Error>) -> Void)`: Запрашивает данные о балансе у внешнего источника (например, сервера или базы данных) для указанного аккаунта и передает результат (баланс или ошибку) в `Presenter`.
 
 **BalanceRouterProtocol**
-- Этот протокол не требует методов, так как для экрана баланса навигация обычно не нужна. Если нужно переходить с экрана баланса, можно добавить методы в другие маршрутизаторы.
+- `func navigateBack()`: Возвращает пользователя на главный экран.
+- `func navigateToTransfer(account: AccountModel)`: Осуществляет переход к `Transfer`-экрану с переданным аккаунтом.
 
 ### Протоколы для экрана перевода (Transfer)
 
@@ -109,23 +113,27 @@
 
 **TransferInteractorProtocol**
 - `processTransfer(fromAccount: AccountModel, toAccount: AccountModel, amount: Double, completion: @escaping (Result<Void, Error>) -> Void)`: Обрабатывает перевод средств между двумя аккаунтами. В случае успешной транзакции возвращает `Result.success`, в случае ошибки — `Result.failure` с подробным описанием ошибки (например, недостаток средств или ошибка сети).
+- `func checkBalance(forAccount account: AccountModel, amount: Double) -> Bool`: Проверяет баланс пользователя и его возможность перевести сумму. Если средств досаточно, вызывается метод `processTransfer`, если нет, возвращается ошибка и вызывается метод `showError` в `View`.
 
 **TransferRouterProtocol**
 - `navigateToSuccessScreen()`: Перенаправляет пользователя на экран успеха (например, сообщение о завершении перевода или переход к следующему шагу после перевода).
+- `func navigateBack()`: Возвращает пользователя на главный экран.
 
 ### Протоколы для экрана истории транзакций (History)
 
 **HistoryViewProtocol**
 - `displayTransactions(_ transactions: [TransactionModel])`: Отображает список транзакций для выбранного аккаунта. Метод принимает массив объектов `TransactionModel`, содержащих данные о каждой транзакции (например, сумма, дата и тип).
+- `func showError(message: String)`: Показывает ошибку загрузки.
 
 **HistoryPresenterProtocol**
 - `loadTransactions(forAccount account: AccountModel)`: Запрашивает историю транзакций для указанного аккаунта. Взаимодействует с Interactor для получения данных и передает их `View` для отображения.
+- `func didSelectTransaction(_ transaction: TransactionModel)`: Вызывает метод `Router`, который открывает экран с деталями транзакции. 
 
 **HistoryInteractorProtocol**
 - `fetchTransactions(forAccount account: AccountModel, completion: @escaping (Result<[TransactionModel], Error>) -> Void)`: Выполняет запрос транзакций для указанного аккаунта, взаимодействуя с внешним источником данных (например, сервером). Возвращает массив транзакций или ошибку.
 
 **HistoryRouterProtocol**
-- Этот протокол не требует методов, так как экран истории не требует навигации, однако, если нужно добавить переходы, можно использовать другие маршрутизаторы.
+- `func navigateToTransactionDetails(transaction: TransactionModel)`: Открывает экран с деталями транзакции. 
 
 ### Модели
 
