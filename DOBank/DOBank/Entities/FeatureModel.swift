@@ -3,8 +3,10 @@ struct FeatureModel {
     let title: String
 }
 
-enum FeatureType {
-    case balance
-    case transfer
-    case history
+extension FeatureModel {
+    enum FeatureType {
+        case balance
+        case transfer
+        case history
+    }
 }
