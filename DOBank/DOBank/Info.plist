@@ -20,6 +20,11 @@
 				</dict>
 			</array>
 		</dict>
+		<key>UISupportedInterfaceOrientations</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		</array>
 	</dict>
 </dict>
 </plist>
