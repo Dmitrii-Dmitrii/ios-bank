@@ -10,7 +10,6 @@ class MainViewController: UIViewController, MainViewProtocol {
         let balance = BalanceModel(amount: 100000.0, currency: "RUB")
         let account = AccountModel(id: "1", balance: balance, userId: "1")
         let user = UserModel(id: "1", name: "Dmitrii", email: "username@example.com", accounts: [account])
-//        presenter.loadUserAccounts(user: user)
     }
     
     func displayAccounts(_ accounts: [AccountModel]) {

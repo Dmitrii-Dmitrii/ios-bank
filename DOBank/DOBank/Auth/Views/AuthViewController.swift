@@ -3,7 +3,7 @@ import UIKit
 class AuthViewController: UIViewController, UITextFieldDelegate, AuthViewProtocol {
     var presenter: AuthPresenterProtocol!
 
-    private var usernameTextField: UITextField = {
+    private lazy var usernameTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = NSLocalizedString("Username", comment: "")
         textField.borderStyle = .roundedRect
@@ -12,7 +12,7 @@ class AuthViewController: UIViewController, UITextFieldDelegate, AuthViewProtoco
         return textField
     }()
 
-    private var passwordTextField: UITextField = {
+    private lazy var passwordTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = NSLocalizedString("Password", comment: "")
         textField.borderStyle = .roundedRect
@@ -22,14 +22,14 @@ class AuthViewController: UIViewController, UITextFieldDelegate, AuthViewProtoco
         return textField
     }()
     
-    private var showPasswordButton: UIButton = {
+    private lazy var showPasswordButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Show password", for: .normal)
         button.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
         return button
     }()
     
-    private var loginButton: UIButton = {
+    private lazy var loginButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(NSLocalizedString("Login", comment: ""), for: .normal)
         button.backgroundColor = UIColor.systemRed

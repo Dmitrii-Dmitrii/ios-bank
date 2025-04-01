@@ -1,7 +1,7 @@
 import UIKit
 
-class AuthModuleBuilder {
-    static func build() -> UIViewController {
+class AuthModuleBuilder: AuthModuleBuilderProtocol {
+    func build() -> UIViewController {
         let view = AuthViewController()
         let interactor = AuthInteractor()
         let router = AuthRouter()
