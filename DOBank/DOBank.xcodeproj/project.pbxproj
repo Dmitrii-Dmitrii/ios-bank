@@ -252,6 +252,8 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TEST_PASSWORD = test_password;
+				TEST_USERNAME = test_username;
 			};
 			name = Debug;
 		};
@@ -307,6 +309,8 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				TEST_PASSWORD = test_password;
+				TEST_USERNAME = test_username;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
