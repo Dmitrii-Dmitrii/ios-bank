@@ -1,3 +1,3 @@
 protocol AuthRouterProtocol: AnyObject {
-    func navigateToMainScreen()
+    func navigateToMainScreen(with user: UserModel)
 }
