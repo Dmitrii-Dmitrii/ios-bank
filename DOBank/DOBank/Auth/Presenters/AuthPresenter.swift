@@ -40,8 +40,8 @@ class AuthPresenter: AuthPresenterProtocol {
             self?.view?.hideLoading()
             
             switch result {
-            case .success( _):
-                self?.router.navigateToMainScreen()
+            case .success(let user):
+                self?.router.navigateToMainScreen(with: user)
             case .failure(let error):
                 self?.view?.showAuthError(error.localizedDescription)
             }

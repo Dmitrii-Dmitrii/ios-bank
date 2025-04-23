@@ -1,38 +1,65 @@
 import UIKit
 
 class MainViewController: UIViewController, MainViewProtocol {
-    private let label = UILabel()
     var presenter: MainPresenterProtocol!
+    
+    private var accounts: [AccountModel] = []
+    private var features: [FeatureModel] = []
+    
+    private let activityIndicator = UIActivityIndicatorView(style: .large)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        let balance = BalanceModel(amount: 100000.0, currency: "RUB")
-        let account = AccountModel(id: "1", balance: balance, userId: "1")
-        let user = UserModel(id: "1", name: "Dmitrii", email: "username@example.com", accounts: [account])
-    }
-    
-    func displayAccounts(_ accounts: [AccountModel]) {
-        label.text = "Accounts loaded: \(accounts.count)"
-    }
-    
-    func displayFeatures(_ features: [FeatureModel]) {
-        label.text = "Features loaded: \(features.count)"
+        presenter.loadFeatures()
+        presenter.loadUserAccounts()
     }
     
     private func setupUI() {
         view.backgroundColor = .red
-        
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        view.addSubview(label)
-        
-        NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
+        activityIndicator.center = view.center
+        activityIndicator.hidesWhenStopped = true
+        view.addSubview(activityIndicator)
+    }
+    
+    func displayAccounts(_ accounts: [AccountModel]) {
+        self.accounts = accounts
+        print("=== Accounts ===")
+        accounts.forEach {
+            print("""
+            Account ID: \($0.id)
+            Balance: \($0.balance.amount) \($0.balance.currency)
+            User ID: \($0.userId)
+            """)
+        }
+    }
+    
+    func displayFeatures(_ features: [FeatureModel]) {
+        self.features = features
+        print("=== Features ===")
+        features.forEach {
+            print("Feature: \($0.title), Type: \($0.type)")
+        }
+    }
+    
+    func showLoading() {
+        activityIndicator.startAnimating()
+    }
+    
+    func hideLoading() {
+        activityIndicator.stopAnimating()
+    }
+    
+    func showError(message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let lastElement = accounts.count - 1
+        if indexPath.row == lastElement {
+            presenter.loadNextPageIfNeeded()
+        }
     }
 }
