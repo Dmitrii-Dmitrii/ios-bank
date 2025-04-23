@@ -1,6 +1,5 @@
 import Foundation
 
-
 class NetworkService: NetworkServiceProtocol {
     private let baseURL: String
     private let login: String
@@ -24,7 +23,7 @@ class NetworkService: NetworkServiceProtocol {
         
         let loginString = "\(login):\(password)"
         guard let loginData = loginString.data(using: .utf8) else {
-            completion(.failure(NetworkError.unknown(NSError(domain: "NetworkService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode authentication data"]))))
+            completion(.failure(NetworkError.authenticationError))
             return
         }
         let base64LoginString = loginData.base64EncodedString()
@@ -34,21 +33,21 @@ class NetworkService: NetworkServiceProtocol {
             let jsonData = try JSONEncoder().encode(data)
             request.httpBody = jsonData
         } catch {
-            completion(.failure(NetworkError.unknown(error)))
+            completion(.failure(NetworkError.unknown))
             return
         }
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 DispatchQueue.main.async {
-                    completion(.failure(NetworkError.unknown(error)))
+                    completion(.failure(NetworkError.unknown))
                 }
                 return
             }
             
             guard let httpResponse = response as? HTTPURLResponse else {
                 DispatchQueue.main.async {
-                    completion(.failure(NetworkError.unknown(NSError(domain: "NetworkService", code: -1, userInfo: nil))))
+                    completion(.failure(NetworkError.unknown))
                 }
                 return
             }
@@ -79,7 +78,7 @@ class NetworkService: NetworkServiceProtocol {
         
         let loginString = "\(login):\(password)"
         guard let loginData = loginString.data(using: .utf8) else {
-            completion(.failure(NetworkError.unknown(NSError(domain: "NetworkService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode authentication data"]))))
+            completion(.failure(NetworkError.authenticationError))
             return
         }
         let base64LoginString = loginData.base64EncodedString()
@@ -88,14 +87,14 @@ class NetworkService: NetworkServiceProtocol {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 DispatchQueue.main.async {
-                    completion(.failure(NetworkError.unknown(error)))
+                    completion(.failure(NetworkError.unknown))
                 }
                 return
             }
             
             guard let httpResponse = response as? HTTPURLResponse else {
                 DispatchQueue.main.async {
-                    completion(.failure(NetworkError.unknown(NSError(domain: "NetworkService", code: -1, userInfo: nil))))
+                    completion(.failure(NetworkError.unknown))
                 }
                 return
             }

@@ -3,7 +3,7 @@ import UIKit
 class AuthModuleBuilder: AuthModuleBuilderProtocol {
     func build() -> UIViewController {
         let view = AuthViewController()
-        let networkService = NetworkService(baseURL: "https://alfa-itmo.ru", login: "368609", password: "m4d6viQ8UhAp")
+        let networkService = NetworkService(baseURL: APICredentials.baseURL, login: APICredentials.login, password: APICredentials.password)
         let interactor = AuthInteractor(networkService: networkService)
         let router = AuthRouter()
         let presenter = AuthPresenter(view: view, interactor: interactor, router: router)

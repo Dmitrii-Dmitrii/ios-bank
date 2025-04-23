@@ -38,7 +38,33 @@ class CacheService: CacheServiceProtocol {
     
     func clearCache() {
         cache.removeAll()
-        saveCacheToDisk()
+        
+        do {
+            let fileURL = try fileURL()
+            if FileManager.default.fileExists(atPath: fileURL.path) {
+                try FileManager.default.removeItem(at: fileURL)
+            }
+        } catch {
+            print("Error removing cache file: \(error)")
+        }
+    }
+    
+    func cleanExpiredCache() {
+        var keysToRemove: [String] = []
+        
+        for (key, item) in cache {
+            if Date().timeIntervalSince(item.timestamp) > cacheDuration {
+                keysToRemove.append(key)
+            }
+        }
+        
+        for key in keysToRemove {
+            cache.removeValue(forKey: key)
+        }
+        
+        if !keysToRemove.isEmpty {
+            saveCacheToDisk()
+        }
     }
     
     private func cacheKey(for page: Int) -> String {
@@ -61,6 +87,8 @@ class CacheService: CacheServiceProtocol {
             if FileManager.default.fileExists(atPath: fileURL.path) {
                 let data = try Data(contentsOf: fileURL)
                 cache = try JSONDecoder().decode([String: CacheItem].self, from: data)
+                
+                cleanExpiredCache()
             }
         } catch {
             print("Error loading cache: \(error)")
