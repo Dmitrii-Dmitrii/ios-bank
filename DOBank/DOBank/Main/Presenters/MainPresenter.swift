@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 class MainPresenter: MainPresenterProtocol {
     weak var view: MainViewProtocol?
@@ -16,11 +17,6 @@ class MainPresenter: MainPresenterProtocol {
         self.interactor = interactor
         self.router = router
         self.currentUser = user
-    }
-    
-    func loadFeatures() {
-        let features = interactor.getFeatures()
-        view?.displayFeatures(features)
     }
     
     func loadUserAccounts() {
@@ -51,21 +47,33 @@ class MainPresenter: MainPresenterProtocol {
                 self.view?.displayAccounts(self.accounts)
                 
             case .failure(let error):
-                self.view?.showError(message: "Ошибка загрузки счетов: \(error.localizedDescription)")
+                self.view?.showError(message: "Loading accounts error: \(error.localizedDescription)")
             }
         }
     }
     
-    func didSelectFeature(_ feature: FeatureModel.FeatureType) {
-        guard let account = accounts.first else {
-            view?.showError(message: "Сначала необходимо выбрать счет")
-            return
+    func didSelectAccount(_ account: AccountModel) {
+        if let _ = view as? UIViewController {
+            router.navigateToFeature(.balance, account: account)
         }
-        
-        router.navigateToFeature(feature, account: account)
     }
     
-    func didSelectAccount(_ account: AccountModel) {
+    func navigateToBalance(account: AccountModel) {
+        if let _ = view as? UIViewController {
+            router.navigateToFeature(.balance, account: account)
+        }
+    }
+    
+    func navigateToTransfer(account: AccountModel) {
+        if let _ = view as? UIViewController {
+            router.navigateToFeature(.transfer, account: account)
+        }
+    }
+    
+    func navigateToHistory(account: AccountModel) {
+        if let _ = view as? UIViewController {
+            router.navigateToFeature(.history, account: account)
+        }
     }
     
     func loadNextPageIfNeeded() {
