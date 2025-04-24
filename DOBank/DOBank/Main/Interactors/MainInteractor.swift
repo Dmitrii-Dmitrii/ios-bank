@@ -42,9 +42,9 @@ class MainInteractor: MainInteractorProtocol {
     
     func getFeatures() -> [FeatureModel] {
         return [
-            FeatureModel(type: .balance, title: "Баланс"),
-            FeatureModel(type: .transfer, title: "Перевод"),
-            FeatureModel(type: .history, title: "История")
+            FeatureModel(type: .balance, title: "Balance"),
+            FeatureModel(type: .transfer, title: "Transfer"),
+            FeatureModel(type: .history, title: "History")
         ]
     }
     

@@ -19,14 +19,17 @@ class MainRouter: MainRouterProtocol {
     }
     
     private func navigateToBalance(account: AccountModel) {
-        print("Navigate to balance screen for account: \(account.id)")
+        let balanceViewController = BalanceViewController()
+        viewController?.navigationController?.pushViewController(balanceViewController, animated: true)
     }
     
     private func navigateToTransfer(account: AccountModel) {
-        print("Navigate to transfer screen for account: \(account.id)")
+        let transferViewController = TransferViewController()
+        viewController?.navigationController?.pushViewController(transferViewController, animated: true)
     }
     
     private func navigateToHistory(account: AccountModel) {
-        print("Navigate to history screen for account: \(account.id)")
+        let historyViewController = HistoryViewController()
+        viewController?.navigationController?.pushViewController(historyViewController, animated: true)
     }
 }
