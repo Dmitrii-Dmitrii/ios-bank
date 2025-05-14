@@ -3,192 +3,175 @@ import UIKit
 class AuthViewController: UIViewController {
     var presenter: AuthPresenterProtocol!
     
-    private lazy var usernameTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Email"
-        textField.borderStyle = .roundedRect
-        textField.autocapitalizationType = .none
-        textField.keyboardType = .emailAddress
-        textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        return textField
-    }()
-    
-    private lazy var passwordTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Password"
-        textField.borderStyle = .roundedRect
-        textField.isSecureTextEntry = true
-        textField.autocapitalizationType = .none
-        textField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        return textField
-    }()
-    
-    private lazy var showPasswordButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Show", for: .normal)
-        button.setTitleColor(.systemBlue, for: .normal)
-        button.addTarget(self, action: #selector(showPasswordButtonTapped), for: .touchUpInside)
-        return button
-    }()
-
-    private lazy var loginButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Login", for: .normal)
-        button.backgroundColor = .systemRed
-        button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 8
-        button.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
-        button.isEnabled = false
-        button.alpha = 0.5
-        return button
-    }()
-    
-    private lazy var emailErrorLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .red
-        label.font = .systemFont(ofSize: 12)
-        label.isHidden = true
-        return label
-    }()
-    
-    private lazy var passwordErrorLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .red
-        label.font = .systemFont(ofSize: 12)
-        label.isHidden = true
-        return label
-    }()
+    private lazy var usernameTextField = DSTextField()
+    private lazy var passwordTextField = DSTextField()
+    private lazy var loginButton = DSButton()
+    private lazy var titleLabel = DSLabel()
+    private lazy var mainStackView = DSStackView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        setupDelegates()
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = DSTokens.Colors.background
         
-        let passwordContainer = UIView()
-        passwordContainer.addSubview(passwordTextField)
-        passwordContainer.addSubview(showPasswordButton)
+        titleLabel.configure(with: DSLabelViewModel(
+            text: "DOBank",
+            style: .largeTitle,
+            textAlignment: .center
+        ))
         
-        passwordTextField.translatesAutoresizingMaskIntoConstraints = false
-        showPasswordButton.translatesAutoresizingMaskIntoConstraints = false
+        usernameTextField.configure(with: DSTextFieldViewModel(
+            placeholder: "Email",
+            keyboardType: .emailAddress,
+            autocapitalizationType: .none,
+            onChange: { [weak self] text in
+                self?.presenter.emailChanged(text)
+            }
+        ))
+        
+        passwordTextField.configure(with: DSTextFieldViewModel(
+            placeholder: "Password",
+            style: .password,
+            isSecure: true,
+            autocapitalizationType: .none,
+            onChange: { [weak self] text in
+                self?.presenter.passwordChanged(text)
+            }
+        ))
+        
+        loginButton.configure(with: DSButtonViewModel(
+            title: "Login",
+            style: .primary,
+            size: .large,
+            isEnabled: false,
+            action: { [weak self] in
+                self?.loginButtonTapped()
+            }
+        ))
+        
+        mainStackView.configure(with: DSStackViewViewModel(
+            axis: .vertical,
+            spacing: DSTokens.Spacing.m,
+            distribution: .fill,
+            alignment: .fill
+        ))
+        
+        mainStackView.addArrangedSubview(titleLabel)
+        mainStackView.addArrangedSubview(UIView())
+        mainStackView.addArrangedSubview(usernameTextField)
+        mainStackView.addArrangedSubview(passwordTextField)
+        mainStackView.addArrangedSubview(loginButton)
+        
+        view.addSubview(mainStackView)
+        mainStackView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            passwordTextField.leadingAnchor.constraint(equalTo: passwordContainer.leadingAnchor),
-            passwordTextField.topAnchor.constraint(equalTo: passwordContainer.topAnchor),
-            passwordTextField.bottomAnchor.constraint(equalTo: passwordContainer.bottomAnchor),
-            passwordTextField.trailingAnchor.constraint(equalTo: showPasswordButton.leadingAnchor, constant: -8),
+            mainStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            mainStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: DSTokens.Spacing.m),
+            mainStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -DSTokens.Spacing.m),
             
-            showPasswordButton.trailingAnchor.constraint(equalTo: passwordContainer.trailingAnchor),
-            showPasswordButton.centerYAnchor.constraint(equalTo: passwordContainer.centerYAnchor),
-            showPasswordButton.widthAnchor.constraint(equalToConstant: 60)
-        ])
-        
-        let stackView = UIStackView(arrangedSubviews: [
-            usernameTextField,
-            emailErrorLabel,
-            passwordContainer,
-            passwordErrorLabel,
-            loginButton
-        ])
-        stackView.axis = .vertical
-        stackView.spacing = 8
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(stackView)
-        
-        NSLayoutConstraint.activate([
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            
-            usernameTextField.heightAnchor.constraint(equalToConstant: 44),
-            passwordContainer.heightAnchor.constraint(equalToConstant: 44),
+            usernameTextField.heightAnchor.constraint(equalToConstant: 56),
+            passwordTextField.heightAnchor.constraint(equalToConstant: 56),
             loginButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
-    private func setupDelegates() {
-        usernameTextField.delegate = self
-        passwordTextField.delegate = self
-    }
-    
-    @objc private func loginButtonTapped() {
-        presenter.loginTapped(
-            email: usernameTextField.text,
-            password: passwordTextField.text
-        )
-    }
-    
-    @objc private func textFieldDidChange(_ textField: UITextField) {
-        if textField == usernameTextField {
-            presenter.emailChanged(textField.text)
-        } else {
-            presenter.passwordChanged(textField.text)
-        }
-    }
-    
-    @objc private func showPasswordButtonTapped() {
-        presenter.showPasswordTapped()
+    private func loginButtonTapped() {
+        let username = usernameTextField.text
+        let password = passwordTextField.text
+        presenter.loginTapped(email: username, password: password)
     }
     
     func updatePasswordVisibility(isVisible: Bool, buttonTitle: String) {
-        passwordTextField.isSecureTextEntry = !isVisible
-        showPasswordButton.setTitle(buttonTitle, for: .normal)
-    }
-}
-
-extension AuthViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField == usernameTextField {
-            passwordTextField.becomeFirstResponder()
-        } else {
-            textField.resignFirstResponder()
-        }
-        return true
+        passwordTextField.configure(with: DSTextFieldViewModel(
+            placeholder: "Password",
+            text: passwordTextField.text,
+            style: .password,
+            isSecure: !isVisible,
+            autocapitalizationType: .none,
+            onChange: { [weak self] text in
+                self?.presenter.passwordChanged(text)
+            }
+        ))
     }
 }
 
 extension AuthViewController: AuthViewProtocol {
     func showEmailError(_ message: String?) {
-        emailErrorLabel.text = message
-        emailErrorLabel.isHidden = false
-        usernameTextField.layer.borderColor = UIColor.red.cgColor
-        usernameTextField.layer.borderWidth = 1
+        usernameTextField.configure(with: DSTextFieldViewModel(
+            placeholder: "Email",
+            text: usernameTextField.text,
+            style: .error,
+            keyboardType: .emailAddress,
+            autocapitalizationType: .none,
+            errorMessage: message,
+            onChange: { [weak self] text in
+                self?.presenter.emailChanged(text)
+            }
+        ))
     }
     
     func hideEmailError() {
-        emailErrorLabel.isHidden = true
-        usernameTextField.layer.borderColor = UIColor.gray.cgColor
-        usernameTextField.layer.borderWidth = 1
+        usernameTextField.configure(with: DSTextFieldViewModel(
+            placeholder: "Email",
+            text: usernameTextField.text,
+            style: .default,
+            keyboardType: .emailAddress,
+            autocapitalizationType: .none,
+            onChange: { [weak self] text in
+                self?.presenter.emailChanged(text)
+            }
+        ))
     }
     
     func showPasswordError(_ message: String?) {
-        passwordErrorLabel.text = message
-        passwordErrorLabel.isHidden = false
-        passwordTextField.layer.borderColor = UIColor.red.cgColor
-        passwordTextField.layer.borderWidth = 1
+        passwordTextField.configure(with: DSTextFieldViewModel(
+            placeholder: "Password",
+            text: passwordTextField.text,
+            style: .error,
+            isSecure: true,
+            autocapitalizationType: .none,
+            errorMessage: message,
+            onChange: { [weak self] text in
+                self?.presenter.passwordChanged(text)
+            }
+        ))
     }
     
     func hidePasswordError() {
-        passwordErrorLabel.isHidden = true
-        passwordTextField.layer.borderColor = UIColor.gray.cgColor
-        passwordTextField.layer.borderWidth = 1
+        passwordTextField.configure(with: DSTextFieldViewModel(
+            placeholder: "Password",
+            text: passwordTextField.text,
+            style: .password,
+            isSecure: true,
+            autocapitalizationType: .none,
+            onChange: { [weak self] text in
+                self?.presenter.passwordChanged(text)
+            }
+        ))
     }
     
     func setLoginButton(enabled: Bool) {
-        loginButton.isEnabled = enabled
-        loginButton.alpha = enabled ? 1.0 : 0.5
+        loginButton.configure(with: DSButtonViewModel(
+            title: "Login",
+            style: .primary,
+            size: .large,
+            isEnabled: enabled,
+            action: { [weak self] in
+                self?.loginButtonTapped()
+            }
+        ))
     }
     
     func showLoading() {
-        loginButton.isEnabled = false
+        setLoginButton(enabled: false)
     }
     
     func hideLoading() {
-        loginButton.isEnabled = true
+        setLoginButton(enabled: true)
     }
     
     func showAuthError(_ message: String) {

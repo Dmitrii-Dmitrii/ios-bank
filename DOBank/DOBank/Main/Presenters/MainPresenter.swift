@@ -54,25 +54,25 @@ class MainPresenter: MainPresenterProtocol {
     
     func didSelectAccount(_ account: AccountModel) {
         if let _ = view as? UIViewController {
-            router.navigateToFeature(.balance, account: account)
+            router.navigateToFeature(.balance, account: account, user: currentUser)
         }
     }
     
     func navigateToBalance(account: AccountModel) {
         if let _ = view as? UIViewController {
-            router.navigateToFeature(.balance, account: account)
+            router.navigateToFeature(.balance, account: account, user: currentUser)
         }
     }
     
     func navigateToTransfer(account: AccountModel) {
         if let _ = view as? UIViewController {
-            router.navigateToFeature(.transfer, account: account)
+            router.navigateToFeature(.transfer, account: account, user: currentUser)
         }
     }
     
     func navigateToHistory(account: AccountModel) {
         if let _ = view as? UIViewController {
-            router.navigateToFeature(.history, account: account)
+            router.navigateToFeature(.history, account: account, user: currentUser)
         }
     }
     
