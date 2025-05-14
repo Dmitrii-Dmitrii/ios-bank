@@ -1,3 +1,6 @@
 protocol BalancePresenterProtocol: AnyObject {
-    func onViewDidLoad()
+    func viewDidLoad()
+    func navigateToTransfer()
+    func navigateToHistory()
+    func refreshBalance()
 }

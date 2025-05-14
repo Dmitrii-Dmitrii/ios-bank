@@ -1,4 +1,4 @@
 protocol BalanceRouterProtocol: AnyObject {
-    func navigateBack()
-    func navigateToTransfer(account: AccountModel)
+    func navigateToTransfer(account: AccountModel, user: UserModel)
+    func navigateToHistory(account: AccountModel)
 }

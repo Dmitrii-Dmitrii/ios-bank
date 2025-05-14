@@ -1,3 +1,3 @@
 protocol BalanceInteractorProtocol: AnyObject {
-    func fetchBalance(forAccount account: AccountModel, completion: @escaping (Result<BalanceModel, Error>) -> Void)
+    func fetchAccountBalance(account: AccountModel, completion: @escaping (Result<AccountModel, Error>) -> Void)
 }

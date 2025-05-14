@@ -7,26 +7,31 @@ class MainRouter: MainRouterProtocol {
         self.viewController = viewController
     }
     
-    func navigateToFeature(_ feature: FeatureModel.FeatureType, account: AccountModel) {
+    func navigateToFeature(_ feature: FeatureModel.FeatureType, account: AccountModel, user: UserModel) {
         switch feature {
         case .balance:
-            navigateToBalance(account: account)
+            navigateToBalance(account: account, user: user)
         case .transfer:
-            navigateToTransfer(account: account)
+            navigateToTransfer(account: account, user: user)
         case .history:
             navigateToHistory(account: account)
         }
     }
     
-    private func navigateToBalance(account: AccountModel) {
-        print("Navigate to balance screen for account: \(account.id)")
+    private func navigateToBalance(account: AccountModel, user: UserModel) {
+        let builder = BalanceModuleBuilder()
+        let balanceViewController = builder.build(account: account, user: user)
+        viewController?.navigationController?.pushViewController(balanceViewController, animated: true)
     }
     
-    private func navigateToTransfer(account: AccountModel) {
-        print("Navigate to transfer screen for account: \(account.id)")
+    private func navigateToTransfer(account: AccountModel, user: UserModel) {
+        let builder = TransferModuleBuilder()
+        let transferViewController = builder.build(account: account, user: user)
+        viewController?.navigationController?.pushViewController(transferViewController, animated: true)
     }
     
     private func navigateToHistory(account: AccountModel) {
-        print("Navigate to history screen for account: \(account.id)")
+        let historyViewController = HistoryViewController()
+        viewController?.navigationController?.pushViewController(historyViewController, animated: true)
     }
 }
